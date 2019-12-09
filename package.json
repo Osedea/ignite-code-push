@@ -1,12 +1,12 @@
 {
   "name": "ignite-code-push",
-  "description": "A description of your plugin.",
+  "description": "A plugin to add code-push to your react-native app",
+  "keywords": ["code-push", "react-native", "ignite", "ignite plugin"],
   "version": "0.0.1",
   "license": "MIT",
   "author": {
-    "name": "Your Name",
-    "email": "test@example.com",
-    "url": "https://example.com/path/to/your/plugin"
+    "name": "Adrien THIERY",
+    "email": "opensource@osedea.com"
   },
   "scripts": {
     "lint": "standard",
@@ -19,8 +19,8 @@
   "standard": {
     "parser": "babel-eslint"
   },
-  "url": "https://example.com/path/to/your/plugin",
-  "repository": "githuborg/reponame",
+  "url": "github.com/osedea/ignite-code-push",
+  "repository": "osedea/ignite-code-push",
   "devDependencies": {
     "ava": "^1.4.1",
     "babel-eslint": "^10.0.1",
