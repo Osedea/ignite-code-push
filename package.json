@@ -1,8 +1,13 @@
 {
   "name": "ignite-code-push",
   "description": "A plugin to add code-push to your react-native app",
-  "keywords": ["code-push", "react-native", "ignite", "ignite plugin"],
-  "version": "0.0.1",
+  "keywords": [
+    "code-push",
+    "react-native",
+    "ignite",
+    "ignite plugin"
+  ],
+  "version": "0.0.2",
   "license": "MIT",
   "author": {
     "name": "Adrien THIERY",
@@ -30,5 +35,3 @@
     "prettier": "^1.17.1"
   }
 }
-
-
