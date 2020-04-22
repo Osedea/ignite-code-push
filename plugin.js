@@ -38,7 +38,7 @@ const add = async function (toolbox) {
         const { documentation } = await prompt.ask([{
             name: 'documentation',
             message: 'Do you want us to add a section to your README?',
-            type: 'radio',
+            type: 'select',
             choices: ['NO', 'YES'],
             default: 'NO',
         }]);
@@ -92,7 +92,7 @@ const add = async function (toolbox) {
     print.info(print.colors.yellow("Setting up code-push keys"))
     try {
         print.info(print.colors.yellow("Logging in"))
-        await system.run(`code-push login`, { stdio: 'inherit' });
+        await system.spawn('code-push login', { stdio: 'inherit' });
     } catch (e) {
         print.warning(e.message);
     }
@@ -104,42 +104,45 @@ const add = async function (toolbox) {
 
     if (apps.length >= 2) {
         const iosApps = apps.filter((app) => app.name.toLowerCase().includes('ios'));
-        const androidApps = apps.filter((app) => app.name.includes('android'));
+        const androidApps = apps.filter((app) => app.name.toLowerCase().includes('android'));
 
         if (iosApps.length === 1) {
             iosApp = iosApps[0].name;
             print.info(print.colors.yellow(`Got ${iosApp} from account for iOS`))
-        } else {
+        } else if (iosApps.length) {
             // Prompt
-            iosApp = await prompt({
+            iosApp = await prompt.ask({
                 name: 'chosenApp',
                 message: 'Which iOS app do you want to work with?',
                 choices: iosApps.map((app) => app.name),
-                type: 'radio',
+                type: 'select',
             }).chosenApp;
         }
 
         if (androidApps.length === 1) {
             androidApp = androidApps[0].name;
-            print.info(print.colors.yellow(`Got ${androidApp} from account`))
-        } else {
+            print.info(print.colors.yellow(`Got ${androidApp} from account for Android`))
+        } else if (androidApps.length) {
             // Prompt
-            androidApp = await prompt({
+            androidApp = await prompt.ask({
                 name: 'chosenApp',
                 message: 'Which Android app do you want to work with?',
                 choices: androidApps.map((app) => app.name),
-                type: 'radio',
+                type: 'select',
             }).chosenApp;
         }
-    } else {
-        iosApp = `${packageJSON.name.toUpperCase()}_IOS`;
-        androidApp = `${packageJSON.name.toUpperCase()}_ANDROID`;
+    }
 
-        print.info(print.colors.yellow(`No apps found in account. Creating ${iosApp} & ${androidApp}`))
-        // Creating apps
-        const iosApp = `${packageJSON.name}-IOS`;
+    if (!iosApp) {
+        iosApp = `${packageJSON.name.toUpperCase()}_IOS`;
+
+        print.info(print.colors.yellow(`No iOS app found in account. Creating ${iosApp}`))
         await system.run(`code-push app add ${iosApp} ios react-native`);
-        const androidApp = `${packageJSON.name}-Android`;
+    }
+
+    if (!androidApp) {
+        androidApp = `${packageJSON.name.toUpperCase()}_ANDROID`;
+        print.info(print.colors.yellow(`No Android app found in account. Creating ${androidApp}`))
         await system.run(`code-push app add ${androidApp} android react-native`);
     }
 
@@ -153,14 +156,14 @@ const add = async function (toolbox) {
     });
     print.info(print.colors.green(`Using Staging code-push key for ${iosApp} on iOS`))
 
-    const androidDeployments = JSON.parse(await system.run(`code-push deployment ls ${iosApp} --displayKeys --format json`));
+    const androidDeployments = JSON.parse(await system.run(`code-push deployment ls ${androidApp} --displayKeys --format json`));
     const androidKey = androidDeployments.find((deployment) => deployment.name === 'Staging').key;
     // Replace in file
     ignite.patchInFile(`${APP_PATH}/android/app/src/main/res/values/strings.xml`, {
         replace: ANDROID_KEY_MARKER,
         insert: androidKey
     });
-    print.info(print.colors.green(`Using Staging code-push key for ${androidApp} on iOS`))
+    print.info(print.colors.green(`Using Staging code-push key for ${androidApp} on Android`))
 
     let fileToPatch;
 
