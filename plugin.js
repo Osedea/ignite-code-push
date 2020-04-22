@@ -13,7 +13,7 @@ const JS_CODE_LOCATION = `jsCodeLocation = [CodePush bundleURL];`;
 const IOS_DEPLOYMENT_KEY = `       <key>CodePushDeploymentKey</key>\n       <string>${IOS_KEY_MARKER}</string>`;
 const ANDROID_CODE_PUSH_IMPORT = `import com.microsoft.codepush.react.CodePush;`;
 const ANDROID_CODE_PUSH_BUNDLE = `        protected String getJSBundleFile() {\n          return CodePush.getJSBundleFile();\n        }\n\n        @Override`;
-const ANDROID_DEPLOYMENT_KEY = `          packages.add(new CodePush("${ANDROID_KEY_MARKER}", MainApplication.this, BuildConfig.DEBUG));`;
+const ANDROID_DEPLOYMENT_KEY = `    <string name="reactNativeCodePush_androidDeploymentKey">${ANDROID_KEY_MARKER}</string>`;
 
 const add = async function (toolbox) {
     // Learn more about toolbox: https://infinitered.github.io/gluegun/#/toolbox-api.md
@@ -82,8 +82,8 @@ const add = async function (toolbox) {
         before: `protected String getJSMainModuleName`,
         insert: ANDROID_CODE_PUSH_BUNDLE
     });
-    ignite.patchInFile(`${APP_PATH}/android/app/src/main/java/com/${packageJSON.name.toLowerCase()}/MainApplication.java`, {
-        before: `return packages;`,
+    ignite.patchInFile(`${APP_PATH}/android/app/src/main/res/values/strings.xml`, {
+        before: `</resources>`,
         insert: ANDROID_DEPLOYMENT_KEY
     });
 
@@ -156,7 +156,7 @@ const add = async function (toolbox) {
     const androidDeployments = JSON.parse(await system.run(`code-push deployment ls ${iosApp} --displayKeys --format json`));
     const androidKey = androidDeployments.find((deployment) => deployment.name === 'Staging').key;
     // Replace in file
-    ignite.patchInFile(`${APP_PATH}/android/app/src/main/java/com/${packageJSON.name.toLowerCase()}/MainApplication.java`, {
+    ignite.patchInFile(`${APP_PATH}/android/app/src/main/res/values/strings.xml`, {
         replace: ANDROID_KEY_MARKER,
         insert: androidKey
     });
